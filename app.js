@@ -53,6 +53,7 @@ var notifications = [
         ]
     }
 ];
+var celebrity = 'Steve Harvey';
 
 // Send notifications to all interested users
 app.post('/notify', function (req, res) {
