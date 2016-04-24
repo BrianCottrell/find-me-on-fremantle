@@ -21,17 +21,17 @@ app.set('view engine', 'ejs');
 var transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-        user: config.gmail.username,
-        pass: config.gmail.password
+        user: process.env.GMAIL_USERNAME || config.gmail.username,
+        pass: process.env.GMAIL_PASSWORD || config.gmail.password
     }
 });
 
 //Configure twitter api
 var twitter = new Twit({
-    consumer_key: config.twitter.consumer_key,
-    consumer_secret: config.twitter.consumer_secret,
-    access_token: config.twitter.access_token,
-    access_token_secret: config.twitter.access_token_secret
+    consumer_key: process.env.TWITTER_CONSUMER_KEY || config.twitter.consumer_key,
+    consumer_secret: process.env.TWITTER_CONSUMER_SECRET || config.twitter.consumer_secret,
+    access_token: process.env.TWITTER_ACCESS_TOKEN || config.twitter.access_token,
+    access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET || config.twitter.access_token_secret
 });
 
 //Add route for root directory
@@ -54,7 +54,7 @@ var notifications = [
     }
 ];
 
-Send notifications to all interested users
+// Send notifications to all interested users
 app.post('/notify', function (req, res) {
     console.log(req);
 
@@ -69,8 +69,8 @@ app.post('/notify', function (req, res) {
                 'Content-Type' : 'application/x-www-form-urlencoded'
             },
             form: {
-                'client_id': config.getty.client_id,
-                'client_secret': config.getty.client_secret,
+                'client_id': process.env.GETTY_CLIENT_ID || config.getty.client_id,
+                'client_secret': process.env.GETTY_CLIENT_SECRET || config.getty.client_secret,
                 'grant_type': 'client_credentials'
             }
         },
@@ -96,7 +96,7 @@ app.post('/notify', function (req, res) {
                     method: 'GET',
                     headers: {
                         'Authorization': authorization,
-                        'Api-Key': config.getty.client_id,
+                        'Api-Key': process.env.GETTY_CLIENT_ID || config.getty.client_id,
                         'Content-Type' : 'application/json'
                     }
                 },
@@ -153,7 +153,7 @@ app.get('/celebrity', function (req, res) {
             qs: {
                 'q': celebrity.split(' ').join('+'),
                 'queryFields': 'cast',
-                'api_key': config.gracenote.api_key
+                'api_key': process.env.GRACENOTE_API_KEY || config.gracenote.api_key
             },
             method: 'GET',
             headers: {
@@ -166,7 +166,7 @@ app.get('/celebrity', function (req, res) {
                 {
                     url: 'http://data.tmsapi.com/v1.1/programs/'+tmsId,
                     qs: {
-                        'api_key': config.gracenote.api_key
+                        'api_key': process.env.GRACENOTE_API_KEY || config.gracenote.api_key
                     },
                     method: 'GET',
                     headers: {
@@ -181,7 +181,7 @@ app.get('/celebrity', function (req, res) {
                                 {
                                     url: 'http://data.tmsapi.com/v1.1/celebs/'+cast[i].personId,
                                     qs: {
-                                        'api_key': config.gracenote.api_key
+                                        'api_key': process.env.GRACENOTE_API_KEY || config.gracenote.api_key
                                     },
                                     method: 'GET',
                                     headers: {
@@ -203,6 +203,6 @@ app.get('/celebrity', function (req, res) {
 });
 
 //Start Application
-app.listen(config.port, function () {
-    console.log('App listening on port '+config.port+'!');
+app.listen(process.env.PORT || config.port, function () {
+    console.log('App listening on port '+(process.env.PORT || config.port)+'!');
 });
