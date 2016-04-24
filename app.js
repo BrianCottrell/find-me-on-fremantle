@@ -8,11 +8,12 @@ var express = require('express'),
     request = require('request'),
     nodemailer = require('nodemailer'),
     Twit = require('twit'),
+    config;
 //Include configuration variables
     if(process.env.ENVIRONMENT){
         config = require('./config');
     }
-    
+
 //Include static assets
 app.use(express.static('public'));
 
