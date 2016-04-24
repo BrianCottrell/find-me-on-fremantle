@@ -10,7 +10,7 @@ var express = require('express'),
     Twit = require('twit'),
     config;
 //Include configuration variables
-    if(process.env.ENVIRONMENT){
+    if(!process.env.ENVIRONMENT){
         config = require('./config');
     }
 
