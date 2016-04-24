@@ -7,6 +7,7 @@ var express = require('express'),
     app = express(),
     request = require('request'),
     nodemailer = require('nodemailer'),
+    bodyParser = require('body-parser'),
     Twit = require('twit'),
     config;
 //Include configuration variables
@@ -16,6 +17,9 @@ var express = require('express'),
 
 //Include static assets
 app.use(express.static('public'));
+
+//Parse application/json
+app.use(bodyParser.json())
 
 //Use embedded javascript for templating
 app.set('view engine', 'ejs');
@@ -42,28 +46,15 @@ app.get('/', function (req, res) {
     res.send('Hello World!');
 });
 
-var notifications = [
-    {
-        "email": "Brian_Cottrell@inbox.com",
-        "phone": "3109386046",
-        "twitter": "@Brian__Cottrell",
-        "appearances": [
-            {
-                "id": "434",
-                "name": "Steve Harvey",
-                "show" : "Family Feud"
-            }
-        ]
-    }
-];
 var celebrity = 'Steve Harvey';
 
 // Send notifications to all interested users
 app.post('/notify', function (req, res) {
-    console.log(req);
-
-    var message = 'test1';
-    var authorization;
+    var data = req.body,
+        title = data.title,
+        description = data.description,
+        users = data.users,
+        authorization;
     //Send email notifications
     request(
         {
@@ -86,10 +77,10 @@ app.post('/notify', function (req, res) {
             }
         }
     );
-    for(var i = 0; i < notifications.length; i++){
-        if(notifications[i].email){
-            var celebrity = notifications[i].appearances[0].name;
-            var email = notifications[i].email;
+    for(var i = 0; i < users.length; i++){
+        if(users[i].email){
+            var celebrity = users[i].appearances[0].name;
+            var email = users[i].email;
             request(
                 {
                     url: 'https://api.gettyimages.com:443/v3/search/images/editorial/?phrase='+encodeURI(celebrity),
@@ -116,11 +107,11 @@ app.post('/notify', function (req, res) {
                             console.log('Authorization expired');
                         }
                         var mailOptions = {
-                            from: 'Find Me on TV!',
+                            from: celebrity+' is on '+title+'!',
                             to: email,
-                            subject: 'Check out your favorite celebrities in the following program!',
-                            text: message,
-                            html: '<h1>Find Me on TV!</h1><img src="'+image+'" alt="FMoF"><b>'+message+'✔</b>'
+                            subject: celebrity+' is on '+title+', brought to you by Find Me on Fremantle',
+                            text: description,
+                            html: '<style>body{background-color: grey;}h1{width:66%; margin:0px; color:#FFF; font-family: Arial; background-color:#337;}p{width:66%; margin:0px; color:#FFF;font-family: Arial;  background-color:#337;}.photo{width:66%; display:block}div{margin-left:23%}</style><a href="http://www.fremantlemedia.com/"><div class="outer"><img src="http://www.tvweek.com/wp-content/uploads/2015/04/fremantlemedia-north-america-logo.png" class="photo"><img src="'+image+'" class="photo" alt="FMoF"><h1>'+title+'</h1><p><b>'+description+'</b><p></div></a>'
                         };
                         transporter.sendMail(mailOptions, function(error, info){
                             if(error){
@@ -136,10 +127,10 @@ app.post('/notify', function (req, res) {
     }
     //Send twitter notifications
     var params = {};
-    params.status = 'test2'+' http://fmot.herokuapp.com/share';
-    for(var i = 0; i < notifications.length; i++){
-        if(notifications[i].twitter){
-            params.status = params.status+' '+notifications[i].twitter;
+    params.status = title+' http://fmot.herokuapp.com/share';
+    for(var i = 0; i < users.length; i++){
+        if(users[i].twitter){
+            params.status = params.status+' '+users[i].twitter;
         }
     }
     twitter.post('statuses/update', params, function (err, data, response) {
