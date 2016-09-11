@@ -24,6 +24,13 @@ app.use(bodyParser.json())
 //Use embedded javascript for templating
 app.set('view engine', 'ejs');
 
+//Enable cors
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 //Configure email service
 var transporter = nodemailer.createTransport({
     service: 'Gmail',
