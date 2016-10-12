@@ -1,4 +1,4 @@
-# follow-me-on-fremantle
+# Follow Me on Fremantle
 Notification server for the 2016 FremantleMedia hackathon.
 ## Inspiration
 We wanted to develope a way to make people aware whenever someone that they care about appears in video or on tv. 
